@@ -43,7 +43,6 @@ class SelfAttention2D(keras.layers.Layer):
         self.dk = depth_k
         self.dv = depth_v
         self.nh = num_heads
-        self.filters = filters
         self.relative = relative
         self.dkh = self.dk // self.nh
         self.dvh = self.dv // self.nh
