@@ -2,7 +2,7 @@ import os
 import collections
 
 
-from ._common_blocks import ChannelSE
+from ._common_blocks import ChannelSE, AugmentedConv2d
 from .. import get_submodules_from_kwargs
 from ..weights import load_model_weights
 
@@ -92,9 +92,9 @@ def residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, c
         # continue with convolution layers
         x = layers.ZeroPadding2D(padding=(1, 1))(x)
         x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
-
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
+        
         x = layers.ZeroPadding2D(padding=(1, 1))(x)
         x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
 
@@ -108,6 +108,57 @@ def residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, c
 
     return layer
 
+def residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
+    """The identity block is the block that has no conv layer at shortcut.
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: default 3, the kernel size of
+            middle conv layer at main path
+        filters: list of integers, the filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+        cut: one of 'pre', 'post'. used to decide where skip connection is taken
+    # Returns
+        Output tensor for the block.
+    """
+
+    def layer(input_tensor):
+
+        # get params and names of layers
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        conv_name, bn_name, relu_name, sc_name = handle_block_names(stage, block)
+
+        x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
+        x = layers.Activation('relu', name=relu_name + '1')(x)
+
+        # defining shortcut connection
+        if cut == 'pre':
+            shortcut = input_tensor
+        elif cut == 'post':
+            shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
+        else:
+            raise ValueError('Cut type not in ["pre", "post"]')
+
+        # continue with convolution layers
+        x = layers.ZeroPadding2D(padding=(1, 1))(x)
+        x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
+        x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
+        x = layers.Activation('relu', name=relu_name + '2')(x)
+        
+        x = layers.ZeroPadding2D(padding=(1, 1))(x)
+        x = AugmentedConv2d(filters, (3,3), name = "attention" + conv_name + "2")(x)
+        # x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
+
+        # use attention block if defined
+        if attention is not None:
+            x = attention(x)
+
+        # add residual connection
+        x = layers.Add()([x, shortcut])
+        return x
+
+    return layer
 
 def residual_bottleneck_block(filters, stage, block, strides=None, attention=None, cut='pre'):
     """The identity block is the block that has no conv layer at shortcut.
@@ -295,6 +346,7 @@ MODELS_PARAMS = {
     'resnet152': ModelParams('resnet152', (3, 8, 36, 3), residual_bottleneck_block, None),
     'seresnet18': ModelParams('seresnet18', (2, 2, 2, 2), residual_conv_block, ChannelSE),
     'seresnet34': ModelParams('seresnet34', (3, 4, 6, 3), residual_conv_block, ChannelSE),
+    'resnet18sa' : ModelParams('resnet18sa', (2, 2, 2, 2), residual_augmented_conv_block, None)
 }
 
 
@@ -381,6 +433,16 @@ def SEResNet34(input_shape=None, input_tensor=None, weights=None, classes=1000, 
         **kwargs
     )
 
+def ResNet18SA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet18sa'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
 
 def preprocess_input(x, **kwargs):
     return x
