@@ -53,9 +53,9 @@ class SelfAttention2D(keras.layers.Layer):
         self.bn = layers.BatchNormalization()
         self.softmax = layers.Softmax()
 
-        def build(self, input_shape):
-            self._shape = input_shape
-            self.B, self.H, self.W, self.d = input_shape
+    def build(self, input_shape):
+        self._shape = input_shape
+        self.B, self.H, self.W, self.d = input_shape
 
         if self.relative:
             self.rel_embeddings_w = self.add_weight('rel_embeddings_w',shape=(2 * self.W - 1, self.dkh),initializer=tf.keras.initializers.RandomNormal(stddev=self.dkh ** -0.5),trainable = True)
