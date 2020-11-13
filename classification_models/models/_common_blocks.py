@@ -196,7 +196,6 @@ def AugmentedConv2d(input_tensor,
                       relative = True):
     
     def layer(input_tensor):
-        filters, depth_k, depth_v, num_heads, relative, **kwargs 
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
         dk = ei(filters*Rk)
         dv = ei(filters*Rv)
