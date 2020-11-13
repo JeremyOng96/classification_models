@@ -192,7 +192,7 @@ def AugmentedConv2d(  filters,
                       kernel_size,
                       Rk = 0.25,
                       Rv = 0.25,
-                      Nh = 0.8,
+                      Nh = 8,
                       relative = True):
     
     def layer(input_tensor):
