@@ -1,7 +1,8 @@
 from classification_models import get_submodules_from_kwargs
 import tensorflow as tf
 import numpy as np
-
+from tensorflow import keras
+from keras import layers
 
 class SelfAttention2D(keras.layers.Layer):
     def __init__(self, depth_k, depth_v, num_heads, relative, **kwargs):
