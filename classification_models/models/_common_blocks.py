@@ -199,7 +199,9 @@ def AugmentedConv2d(  filters,
         dk = ei(filters*Rk)
         dv = ei(filters*Rv)
         conv_out = layers.Conv2D(filters = filters-dv,kernel_size = kernel_size, padding = "same")(input_tensor)
-        attn_out = SelfAttention2D(dk,dv,Nh,relative)(input_tensor)
+        downsample_tensor = layers.AveragePooling2D()(input_tensor)
+        attn_out = SelfAttention2D(dk,dv,Nh,relative)(downsample_tensor)
+        attn_out = layers.UpSampling2D(interpolation = "bilinear")(attn_out)
         out = layers.Concatenate()([conv_out,attn_out])
 
         return out
