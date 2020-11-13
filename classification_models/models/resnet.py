@@ -146,7 +146,7 @@ def residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attenti
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
         
-        x = layers.ZeroPadding2D(padding=(1, 1))(x)
+        # x = layers.ZeroPadding2D(padding=(1, 1))(x)
         x = AugmentedConv2d(filters, (3,3), name = "attention" + conv_name + "2")(x)
         # x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
 
