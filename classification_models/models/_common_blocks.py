@@ -198,8 +198,8 @@ def AugmentedConv2d(  filters,
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
         dk = ei(filters*Rk)
         dv = ei(filters*Rv)
-        conv_out = layers.Conv2D(filters = filters-dv,kernel_size = kernel_size, padding = "same")
-        attn_out = SelfAttention2D(dk,dv,Nh,relative)
+        conv_out = layers.Conv2D(filters = filters-dv,kernel_size = kernel_size, padding = "same")(input_tensor)
+        attn_out = SelfAttention2D(dk,dv,Nh,relative)(input_tensor)
         out = layers.Concatenate()([conv_out,attn_out])
 
         return out
