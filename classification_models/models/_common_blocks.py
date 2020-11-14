@@ -203,7 +203,8 @@ def AugmentedConv2d(  filters,
         attn_out = SelfAttention2D(dk,dv,Nh,relative)(downsample_tensor)
         attn_out = layers.UpSampling2D(interpolation = "bilinear")(attn_out)
         out = layers.Concatenate()([conv_out,attn_out])
-
+        out = layers.BatchNormalization()(out)
+        
         return out
     
     return layer
