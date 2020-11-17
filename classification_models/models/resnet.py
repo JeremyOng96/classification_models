@@ -512,7 +512,7 @@ def ResNet34SA(input_shape=None, input_tensor=None, weights=None, classes=1000, 
         **kwargs
     )
 
-def ResNet34SA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+def ResNet50SA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
         MODELS_PARAMS['resnet50sa'],
         input_shape=input_shape,
