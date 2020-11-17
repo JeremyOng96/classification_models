@@ -252,7 +252,7 @@ def residual_augmented_bottleneck_block(filters, stage, block, strides=None, att
 
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
-        x = AugmentedConv2d(filters, 3, strides = strides)(x)
+        x = AugmentedConv2d(filters, 3, strides = 1)(x)
 
         x = layers.BatchNormalization(name=bn_name + '3', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '3')(x)
