@@ -189,6 +189,7 @@ class SelfAttention2D(keras.layers.Layer):
 
 def AugmentedConv2d(  filters,
                       kernel_size,
+                      strides,
                       Rk = 0.25,
                       Rv = 0.25,
                       Nh = 8,
@@ -198,10 +199,12 @@ def AugmentedConv2d(  filters,
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
         dk = ei(filters*Rk)
         dv = ei(filters*Rv)
-        conv_out = layers.Conv2D(filters = filters-dv,kernel_size = kernel_size, padding = "same")(input_tensor)
+        conv_out = layers.Conv2D(filters = filters-dv, kernel_size = kernel_size, strides = strides, padding = "same")(input_tensor)
         downsample_tensor = layers.AveragePooling2D()(input_tensor)
         attn_out = SelfAttention2D(dk,dv,Nh,relative)(downsample_tensor)
-        attn_out = layers.UpSampling2D(interpolation = "bilinear")(attn_out)
+        if strides > 1:
+            attn_out = layers.UpSampling2D(interpolation = "bilinear")(attn_out)
+            
         out = layers.Concatenate()([conv_out,attn_out])
         out = layers.BatchNormalization()(out)
         
