@@ -147,7 +147,7 @@ def residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attenti
         x = layers.Activation('relu', name=relu_name + '2')(x)
         
         # x = layers.ZeroPadding2D(padding=(1, 1))(x)
-        x = AugmentedConv2d(filters, (3,3), strides = strides)(x)
+        x = AugmentedConv2d(filters, (3,3), strides = 1)(x)
         # x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
 
         # use attention block if defined
@@ -252,7 +252,7 @@ def residual_augmented_bottleneck_block(filters, stage, block, strides=None, att
 
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
-        x = AugmentedConv2d(filters, 3, strides = 1)(x)
+        x = AugmentedConv2d(filters, 3, strides = strides)(x)
 
         x = layers.BatchNormalization(name=bn_name + '3', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '3')(x)
