@@ -10,12 +10,16 @@ class ModelsFactory:
     _models = {
 
         # ResNets
-        'resnet18sa': [rn.ResNet18SA, rn.preprocess_input],
         'resnet18': [rn.ResNet18, rn.preprocess_input],
         'resnet34': [rn.ResNet34, rn.preprocess_input],
         'resnet50': [rn.ResNet50, rn.preprocess_input],
         'resnet101': [rn.ResNet101, rn.preprocess_input],
         'resnet152': [rn.ResNet152, rn.preprocess_input],
+        
+        # ResNets with SA
+        'resnet18sa': [rn.ResNet18SA, rn.preprocess_input],
+        'resnet34sa' : [rn.ResNet34SA, rn.preprocess_input],
+        'resnet50sa' : [rn.ResNet50SA, rn.preprocess_input],
 
         # SE-Nets
         'seresnet18': [rn.SEResNet18, rn.preprocess_input],
