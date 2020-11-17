@@ -401,10 +401,9 @@ MODELS_PARAMS = {
     'resnet152': ModelParams('resnet152', (3, 8, 36, 3), residual_bottleneck_block, None),
     'seresnet18': ModelParams('seresnet18', (2, 2, 2, 2), residual_conv_block, ChannelSE),
     'seresnet34': ModelParams('seresnet34', (3, 4, 6, 3), residual_conv_block, ChannelSE),
-    'resnet18sa' : ModelParams('resnet18sa', (2, 2, 2, 2), residual_augmented_conv_block, None)
-    'resnet34sa' : ModelParams('resnet34sa', (3, 4, 6, 3), residual_augmented_conv_block, None)
-    'resnet50sa': ModelParams('resnet50sa', (3, 4, 6, 3), residual_augmented_bottleneck_block, None),
-
+    'resnet18sa' : ModelParams('resnet18sa', (2, 2, 2, 2), residual_augmented_conv_block, None),
+    'resnet34sa' : ModelParams('resnet34sa', (3, 4, 6, 3), residual_augmented_conv_block, None),
+    'resnet50sa': ModelParams('resnet50sa', (3, 4, 6, 3), residual_augmented_bottleneck_block, None)
 }
 
 
