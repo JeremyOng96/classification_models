@@ -217,7 +217,7 @@ def augmented_residual_bottleneck_block(filters, stage, block, strides=None, att
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
         
-        x = AugmentedConv2d(filters, 3, strides = strides)(x)
+        x = AugmentedConv2d(filters, 3, strides = strides, Rk = 0.2, Rv = 0.1)(x)
         x = layers.BatchNormalization(name=bn_name + '3', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '3')(x)
 
@@ -235,7 +235,7 @@ def augmented_residual_bottleneck_block(filters, stage, block, strides=None, att
 
     return layer
 
-def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), Rk=0.2,Rv=0.1,Nh=8 attention=None, cut='pre'):
+def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), Rk=0.2,Rv=0.1,Nh=8, attention=None, cut='pre'):
     """The identity block is the block that has no conv layer at shortcut.
     # Arguments
         input_tensor: input tensor
