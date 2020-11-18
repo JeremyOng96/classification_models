@@ -17,16 +17,16 @@ class ModelsFactory:
         'resnet152': [rn.ResNet152, rn.preprocess_input],
         
         # ResNets with Front Augmented 
-        'resnet18faa' : [rn.ResNet18FAA, rn_a.preprocess_input],
-        'resnet34faa' : [rn.ResNet34FAA, rn_a.preprocess_input],
+        'resnet18faa' : [rn.ResNet18FAA, rn.preprocess_input],
+        'resnet34faa' : [rn.ResNet34FAA, rn.preprocess_input],
         
         # ResNets with Back Augmented
-        'resnet18baa' : [rn.ResNet18BAA, rn_a.preprocess_input],
-        'resnet34baa' : [rn.ResNet34BAA, rn_a.preprocess_input],
+        'resnet18baa' : [rn.ResNet18BAA, rn.preprocess_input],
+        'resnet34baa' : [rn.ResNet34BAA, rn.preprocess_input],
         
         # ResNets with Full Augmented
-        'resnet18aa_test' : [rn.ResNet18AA, rn_a.preprocess_input],
-        'resnet34aa_test' : [rn.ResNet34AA, rn_a.preprocess_input],
+        'resnet18aa_test' : [rn.ResNet18AA, rn.preprocess_input],
+        'resnet34aa_test' : [rn.ResNet34AA, rn.preprocess_input],
      
         # SE-Nets
         'seresnet18': [rn.SEResNet18, rn.preprocess_input],
