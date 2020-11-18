@@ -155,7 +155,7 @@ def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), 
         
 
         x = AugmentedConv2d(filters, (3,3), strides = (1,1))(x)
-
+        x = layers.BatchNormalization(name = bn_name + 'augmented', **bn_params)(x)
         # use attention block if defined
         if attention is not None:
             x = attention(x)
@@ -205,6 +205,7 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         x = layers.Activation('relu', name=relu_name + '2')(x)
 
         x = AugmentedConv2d(filters, (3,3), strides = (1,1))(x)
+        x = layers.BatchNormalization(name = bn_name + 'augmented', **bn_params)(x)
 
         # use attention block if defined
         if attention is not None:
