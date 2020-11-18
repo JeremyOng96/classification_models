@@ -2,6 +2,7 @@ import functools
 import keras_applications as ka
 
 from .models import resnet as rn
+from .models import resnet_a as rn_a
 from .models import resnext as rx
 from .models import senet as sn
 
@@ -20,6 +21,14 @@ class ModelsFactory:
         'resnet18sa': [rn.ResNet18SA, rn.preprocess_input],
         'resnet34sa' : [rn.ResNet34SA, rn.preprocess_input],
         'resnet50sa' : [rn.ResNet50SA, rn.preprocess_input],
+        
+        # ResNets with Attention
+        'resnet18sa' : [rn_a.ResNet18SA, rn_a.preprocess_input],
+        'resnet34sa' : [rn_a.ResNet34SA, rn_a.preprocess_input],
+        'resnet50sa' : [rn_a.ResNet50SA, rn_a.preprocess_input],
+        'resnet18aa_test' : [rn_a.ResNet18AA, rn_a.preprocess_input],
+        'resnet34aa_test' : [rn_a.ResNet34AA, rn_a.preprocess_input],
+        'resnet50aa_test' : [rn_a.ResNet50AA, rn_a.preprocess_input],       
 
         # SE-Nets
         'seresnet18': [rn.SEResNet18, rn.preprocess_input],
