@@ -79,7 +79,7 @@ def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1),
         Output tensor for the block.
     """
 
-   def layer(input_tensor):
+    def layer(input_tensor):
 
         # get params and names of layers
         conv_params = get_conv_params()
@@ -101,7 +101,7 @@ def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1),
         x = AugmentedConv2d(filters, (3,3), strides = strides)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
-        
+
         x = layers.ZeroPadding2D(padding=(1, 1))(x)
         x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
 
@@ -115,18 +115,18 @@ def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1),
 
     return layer
 
-def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
+    def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
     """The identity block is the block that has no conv layer at shortcut.
     # Arguments
-        input_tensor: input tensor
-        kernel_size: default 3, the kernel size of
-            middle conv layer at main path
-        filters: list of integers, the filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-        cut: one of 'pre', 'post'. used to decide where skip connection is taken
+    input_tensor: input tensor
+    kernel_size: default 3, the kernel size of
+        middle conv layer at main path
+    filters: list of integers, the filters of 3 conv layer at main path
+    stage: integer, current stage label, used for generating layer names
+    block: 'a','b'..., current block label, used for generating layer names
+    cut: one of 'pre', 'post'. used to decide where skip connection is taken
     # Returns
-        Output tensor for the block.
+    Output tensor for the block.
     """
 
     def layer(input_tensor):
@@ -152,7 +152,7 @@ def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), 
         x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
-        
+
         x = AugmentedConv2d(filters, (3,3), strides = 1)(x)
 
         # use attention block if defined
@@ -168,19 +168,19 @@ def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), 
 def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
     """Augmented residual conv block which has conv layer at shortcut when stride = 2.
     # Arguments
-        input_tensor: input tensor
-        kernel_size: default 3, the kernel size of
-            middle conv layer at main path
-        filters: list of integers, the filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-        cut: one of 'pre', 'post'. used to decide where skip connection is taken
-        all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
+    input_tensor: input tensor
+    kernel_size: default 3, the kernel size of
+        middle conv layer at main path
+    filters: list of integers, the filters of 3 conv layer at main path
+    stage: integer, current stage label, used for generating layer names
+    block: 'a','b'..., current block label, used for generating layer names
+    cut: one of 'pre', 'post'. used to decide where skip connection is taken
+    all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
     # Returns
-        Output tensor for the block.
+    Output tensor for the block.
     """
 
-   def layer(input_tensor):
+    def layer(input_tensor):
 
         # get params and names of layers
         conv_params = get_conv_params()
@@ -202,7 +202,7 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         x = AugmentedConv2d(filters, (3,3), strides = strides)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
-        
+
         x = AugmentedConv2d(filters, (3,3), strides = 1)(x)
 
         # use attention block if defined
@@ -218,16 +218,16 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
 def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
     """Augmented residual conv block which has conv layer at shortcut when stride = 2.
     # Arguments
-        input_tensor: input tensor
-        kernel_size: default 3, the kernel size of
-            middle conv layer at main path
-        filters: list of integers, the filters of 3 conv layer at main path
-        stage: integer, current stage label, used for generating layer names
-        block: 'a','b'..., current block label, used for generating layer names
-        cut: one of 'pre', 'post'. used to decide where skip connection is taken
-        all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
+    input_tensor: input tensor
+    kernel_size: default 3, the kernel size of
+        middle conv layer at main path
+    filters: list of integers, the filters of 3 conv layer at main path
+    stage: integer, current stage label, used for generating layer names
+    block: 'a','b'..., current block label, used for generating layer names
+    cut: one of 'pre', 'post'. used to decide where skip connection is taken
+    all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
     # Returns
-        Output tensor for the block.
+    Output tensor for the block.
     """
 
     def layer(input_tensor):
@@ -254,10 +254,10 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         else:
             x = layers.ZeroPadding2D(padding=(1, 1))(x)
             x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
-            
+
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)          
-        
+
         # applies the final augmented convolution
         x = AugmentedConv2d(filters, (3,3), strides = 1)(x)
 
