@@ -17,6 +17,19 @@ class ModelsFactory:
         'resnet101': [rn.ResNet101, rn.preprocess_input],
         'resnet152': [rn.ResNet152, rn.preprocess_input],
         
+        # ResNets with Front Augmented 
+        'resnet18faa' : [rn_a.ResNet18FAA, rn_a.preprocess_input],
+        'resnet34faa' : [rn_a.ResNet34FAA, rn_a.preprocess_input],
+        
+        # ResNets with Back Augmented
+        'resnet18baa' : [rn_a.ResNet18BAA, rn_a.preprocess_input],
+        'resnet34baa' : [rn_a.ResNet34BAA, rn_a.preprocess_input],
+        
+        # ResNets with Full Augmented
+        'resnet18aa_test' : [rn_a.ResNet18AA, rn_a.preprocess_input],
+        'resnet34aa_test' : [rn_a.ResNet34AA, rn_a.preprocess_input],
+        'resnet50aa_test' : [rn_a.ResNet50AA, rn_a.preprocess_input],  
+        
         # ResNets with SA
         'resnet18sa': [rn.ResNet18SA, rn.preprocess_input],
         'resnet34sa' : [rn.ResNet34SA, rn.preprocess_input],
@@ -26,10 +39,7 @@ class ModelsFactory:
         'resnet18sa' : [rn_a.ResNet18SA, rn_a.preprocess_input],
         'resnet34sa' : [rn_a.ResNet34SA, rn_a.preprocess_input],
         'resnet50sa' : [rn_a.ResNet50SA, rn_a.preprocess_input],
-        'resnet18aa_test' : [rn_a.ResNet18AA, rn_a.preprocess_input],
-        'resnet34aa_test' : [rn_a.ResNet34AA, rn_a.preprocess_input],
-        'resnet50aa_test' : [rn_a.ResNet50AA, rn_a.preprocess_input],       
-
+     
         # SE-Nets
         'seresnet18': [rn.SEResNet18, rn.preprocess_input],
         'seresnet34': [rn.SEResNet34, rn.preprocess_input],
