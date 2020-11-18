@@ -64,8 +64,8 @@ def get_bn_params(**params):
 #   Augmented residual blocks
 # -------------------------------------------------------------------------
 
-def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
-    """Augmented residual conv block which has conv layer at shortcut when stride = 2.
+def p_front_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
+    """The identity block is the block that has no conv layer at shortcut.
     # Arguments
         input_tensor: input tensor
         kernel_size: default 3, the kernel size of
@@ -74,7 +74,6 @@ def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1),
         stage: integer, current stage label, used for generating layer names
         block: 'a','b'..., current block label, used for generating layer names
         cut: one of 'pre', 'post'. used to decide where skip connection is taken
-        all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
     # Returns
         Output tensor for the block.
     """
@@ -101,9 +100,10 @@ def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1),
         x = AugmentedConv2d(filters, (3,3), strides = strides)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
+        
 
         x = layers.ZeroPadding2D(padding=(1, 1))(x)
-        x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
+        x = layers.Conv2D(filters, (3, 3), strides= (1,1), name=conv_name + '2', **conv_params)(x)
 
         # use attention block if defined
         if attention is not None:
@@ -118,15 +118,15 @@ def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1),
 def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
     """The identity block is the block that has no conv layer at shortcut.
     # Arguments
-    input_tensor: input tensor
-    kernel_size: default 3, the kernel size of
-        middle conv layer at main path
-    filters: list of integers, the filters of 3 conv layer at main path
-    stage: integer, current stage label, used for generating layer names
-    block: 'a','b'..., current block label, used for generating layer names
-    cut: one of 'pre', 'post'. used to decide where skip connection is taken
+        input_tensor: input tensor
+        kernel_size: default 3, the kernel size of
+            middle conv layer at main path
+        filters: list of integers, the filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+        cut: one of 'pre', 'post'. used to decide where skip connection is taken
     # Returns
-    Output tensor for the block.
+        Output tensor for the block.
     """
 
     def layer(input_tensor):
@@ -152,6 +152,7 @@ def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), 
         x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
+        
 
         x = AugmentedConv2d(filters, (3,3), strides = (1,1))(x)
 
@@ -638,7 +639,7 @@ def ResNet50SA(input_shape=None, input_tensor=None, weights=None, classes=1000, 
 # Define the ResNet 50 network with only middle block augmented
 def ResNet50AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
-        MODELS_PARAMS['resnet50sa'],
+        MODELS_PARAMS['resnet50aa'],
         input_shape=input_shape,
         input_tensor=input_tensor,
         include_top=include_top,
