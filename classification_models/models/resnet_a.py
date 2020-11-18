@@ -64,7 +64,158 @@ def get_bn_params(**params):
 #   Augmented residual blocks
 # -------------------------------------------------------------------------
 
-def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), all_attn = False, attention=None, cut='pre'):
+def p_front_augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
+    """Augmented residual conv block which has conv layer at shortcut when stride = 2.
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: default 3, the kernel size of
+            middle conv layer at main path
+        filters: list of integers, the filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+        cut: one of 'pre', 'post'. used to decide where skip connection is taken
+        all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
+    # Returns
+        Output tensor for the block.
+    """
+
+   def layer(input_tensor):
+
+        # get params and names of layers
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        conv_name, bn_name, relu_name, sc_name = handle_block_names(stage, block)
+
+        x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
+        x = layers.Activation('relu', name=relu_name + '1')(x)
+
+        # defining shortcut connection
+        if cut == 'pre':
+            shortcut = input_tensor
+        elif cut == 'post':
+            shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
+        else:
+            raise ValueError('Cut type not in ["pre", "post"]')
+
+        # continue with convolution layers
+        x = AugmentedConv2d(filters, (3,3), strides = strides)(x)
+        x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
+        x = layers.Activation('relu', name=relu_name + '2')(x)
+        
+        x = layers.ZeroPadding2D(padding=(1, 1))(x)
+        x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
+
+        # use attention block if defined
+        if attention is not None:
+            x = attention(x)
+
+        # add residual connection
+        x = layers.Add()([x, shortcut])
+        return x
+
+    return layer
+
+def p_back_residual_augmented_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
+    """The identity block is the block that has no conv layer at shortcut.
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: default 3, the kernel size of
+            middle conv layer at main path
+        filters: list of integers, the filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+        cut: one of 'pre', 'post'. used to decide where skip connection is taken
+    # Returns
+        Output tensor for the block.
+    """
+
+    def layer(input_tensor):
+
+        # get params and names of layers
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        conv_name, bn_name, relu_name, sc_name = handle_block_names(stage, block)
+
+        x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
+        x = layers.Activation('relu', name=relu_name + '1')(x)
+
+        # defining shortcut connection
+        if cut == 'pre':
+            shortcut = input_tensor
+        elif cut == 'post':
+            shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
+        else:
+            raise ValueError('Cut type not in ["pre", "post"]')
+
+        # continue with convolution layers
+        x = layers.ZeroPadding2D(padding=(1, 1))(x)
+        x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
+        x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
+        x = layers.Activation('relu', name=relu_name + '2')(x)
+        
+        x = AugmentedConv2d(filters, (3,3), strides = 1)(x)
+
+        # use attention block if defined
+        if attention is not None:
+            x = attention(x)
+
+        # add residual connection
+        x = layers.Add()([x, shortcut])
+        return x
+
+    return layer
+
+def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
+    """Augmented residual conv block which has conv layer at shortcut when stride = 2.
+    # Arguments
+        input_tensor: input tensor
+        kernel_size: default 3, the kernel size of
+            middle conv layer at main path
+        filters: list of integers, the filters of 3 conv layer at main path
+        stage: integer, current stage label, used for generating layer names
+        block: 'a','b'..., current block label, used for generating layer names
+        cut: one of 'pre', 'post'. used to decide where skip connection is taken
+        all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
+    # Returns
+        Output tensor for the block.
+    """
+
+   def layer(input_tensor):
+
+        # get params and names of layers
+        conv_params = get_conv_params()
+        bn_params = get_bn_params()
+        conv_name, bn_name, relu_name, sc_name = handle_block_names(stage, block)
+
+        x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
+        x = layers.Activation('relu', name=relu_name + '1')(x)
+
+        # defining shortcut connection
+        if cut == 'pre':
+            shortcut = input_tensor
+        elif cut == 'post':
+            shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
+        else:
+            raise ValueError('Cut type not in ["pre", "post"]')
+
+        # continue with convolution layers
+        x = AugmentedConv2d(filters, (3,3), strides = strides)(x)
+        x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
+        x = layers.Activation('relu', name=relu_name + '2')(x)
+        
+        x = AugmentedConv2d(filters, (3,3), strides = 1)(x)
+
+        # use attention block if defined
+        if attention is not None:
+            x = attention(x)
+
+        # add residual connection
+        x = layers.Add()([x, shortcut])
+        return x
+
+    return layer
+
+def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
     """Augmented residual conv block which has conv layer at shortcut when stride = 2.
     # Arguments
         input_tensor: input tensor
@@ -150,7 +301,7 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=0.25,
         x = layers.Activation('relu', name=relu_name + '1')(x)
         
         # Define the self attention module right before residual block
-        x = SelfAttention2D(dk,dv,Nh)(x)
+        x = SelfAttention2D(dk,dv,Nh,True)(x)
         
         # defining shortcut connection
         if cut == 'pre':
@@ -264,7 +415,7 @@ def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), R
         x = layers.Activation('relu', name=relu_name + '1')(x)
         
         # Self attention layer at input
-        x = SelfAttention2D(dk,dv,Nh)(x)
+        x = SelfAttention2D(dk,dv,Nh,True)(x)
         # defining shortcut connection
         if cut == 'pre':
             shortcut = input_tensor
@@ -414,9 +565,20 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
 # -------------------------------------------------------------------------
 
 MODELS_PARAMS = {
+    # Front Augmented
+    'resnet18faa': ModelParams('resnet18faa',(2,2,2,2),p_front_augmented_residual_conv_block,None),
+    'resnet34faa': ModelParams('resnet34faa',(3,4,6,3),p_front_augmented_residual_conv_block,None),
+    
+    # Back Augmented
+    'resnet18baa': ModelParams('resnet18baa',(2,2,2,2),p_back_residual_augmented_conv_block,None),
+    'resnet34baa': ModelParams('resnet34baa',(3,4,6,3),p_back_residual_augmented_conv_block,None),
+    
+    # Full Augmented Attention
     'resnet18aa' : ModelParams('resnet18aa', (2, 2, 2, 2), augmented_residual_conv_block, None),
     'resnet34aa' : ModelParams('resnet34aa', (3, 4, 6, 3), augmented_residual_conv_block, None),
     'resnet50aa': ModelParams('resnet50aa', (3, 4, 6, 3), augmented_residual_bottleneck_block, None),
+    
+    # Self Attention Input
     'resnet18sa' : ModelParams('resnet18sa', (2, 2, 2, 2), attention_residual_conv_block, None),
     'resnet34sa' : ModelParams('resnet34sa', (3, 4, 6, 3), attention_residual_conv_block, None),
     'resnet50sa' : ModelParams('resnet50sa', (3, 4, 6, 3), attention_residual_bottleneck_block, None),
@@ -424,10 +586,58 @@ MODELS_PARAMS = {
 }
 
 
+# Define the ResNet Front Augmented Attention Convolution
+def ResNet18FAA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet18faa'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
+
+def ResNet34FAA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet34faa'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
+
+# Define the ResNet Back Augmented Attention Convolution
+
+def ResNet18BAA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet34baa'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
+
+def ResNet34BAA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet34baa'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
+
+# Define the ResNet All Augmented Attention Convolution
 
 def ResNet18AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
-        MODELS_PARAMS['resnet18sa'],
+        MODELS_PARAMS['resnet18aa'],
         input_shape=input_shape,
         input_tensor=input_tensor,
         include_top=include_top,
@@ -438,7 +648,7 @@ def ResNet18AA(input_shape=None, input_tensor=None, weights=None, classes=1000, 
 
 def ResNet34AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
-        MODELS_PARAMS['resnet34sa'],
+        MODELS_PARAMS['resnet34aa'],
         input_shape=input_shape,
         input_tensor=input_tensor,
         include_top=include_top,
@@ -447,17 +657,7 @@ def ResNet34AA(input_shape=None, input_tensor=None, weights=None, classes=1000, 
         **kwargs
     )
 
-def ResNet50AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
-    return ResNet(
-        MODELS_PARAMS['resnet50sa'],
-        input_shape=input_shape,
-        input_tensor=input_tensor,
-        include_top=include_top,
-        classes=classes,
-        weights=weights,
-        **kwargs
-    )
-
+# Define the ResNet with Self Attention at the input
 def ResNet18SA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
         MODELS_PARAMS['resnet18sa'],
@@ -490,6 +690,20 @@ def ResNet50SA(input_shape=None, input_tensor=None, weights=None, classes=1000, 
         weights=weights,
         **kwargs
     )
+
+# Define the ResNet 50 network with only middle block augmented
+def ResNet50AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet50sa'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
+
+
 def preprocess_input(x, **kwargs):
     return x
 
