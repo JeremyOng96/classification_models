@@ -5,6 +5,7 @@
 
 
 import os
+import numpy as np
 import collections
 
 
@@ -119,7 +120,7 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), all_att
 
     return layer
 
-def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=0.25,Rv=0.25,Nh=8, cut='pre'):
+def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=0.25,Rv=0.25,Nh=8, attention = None, cut='pre'):
     """Self attention added to the input before residual conv block.
     # Arguments
         input_tensor: input tensor
