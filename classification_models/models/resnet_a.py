@@ -216,7 +216,7 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
 
     return layer
 
-def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=0.25,Rv=0.25,Nh=8, attention = None, cut='pre'):
+def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=1,Nh=8, attention = None, cut='pre'):
     """Self attention added to the input before residual conv block.
     # Arguments
         input_tensor: input tensor
@@ -332,7 +332,7 @@ def augmented_residual_bottleneck_block(filters, stage, block, strides=None, att
 
     return layer
 
-def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), Rk=0.2,Rv=0.1,Nh=8, attention=None, cut='pre'):
+def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), Rk=1,Rv=1,Nh=8, attention=None, cut='pre'):
     """The identity block is the block that has no conv layer at shortcut.
     # Arguments
         input_tensor: input tensor
@@ -511,8 +511,8 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
 
 MODELS_PARAMS = {
     # Front Augmented
-    'resnet18faa': ModelParams('resnet18faa',(2,2,2,2),p_front_augmented_residual_conv_block,None),
-    'resnet34faa': ModelParams('resnet34faa',(3,4,6,3),p_front_augmented_residual_conv_block,None),
+    'resnet18faa': ModelParams('resnet18faa',(2,2,2,2),p_front_residual_augmented_conv_block,None),
+    'resnet34faa': ModelParams('resnet34faa',(3,4,6,3),p_front_residual_augmented_conv_block,None),
     
     # Back Augmented
     'resnet18baa': ModelParams('resnet18baa',(2,2,2,2),p_back_residual_augmented_conv_block,None),
