@@ -2,6 +2,7 @@ import functools
 import keras_applications as ka
 
 from .models import resnet as rn
+from .models import resnet_a as rn_a
 from .models import resnext as rx
 from .models import senet as sn
 
@@ -17,16 +18,16 @@ class ModelsFactory:
         'resnet152': [rn.ResNet152, rn.preprocess_input],
         
         # ResNets with Front Augmented 
-        'resnet18faa' : [rn.ResNet18FAA, rn.preprocess_input],
-        'resnet34faa' : [rn.ResNet34FAA, rn.preprocess_input],
+        'resnet18faa' : [rn_a.ResNet18FAA, rn_a.preprocess_input],
+        'resnet34faa' : [rn_a.ResNet34FAA, rn_a.preprocess_input],
         
         # ResNets with Back Augmented
-        'resnet18baa' : [rn.ResNet18BAA, rn.preprocess_input],
-        'resnet34baa' : [rn.ResNet34BAA, rn.preprocess_input],
+        'resnet18baa' : [rn_a.ResNet18BAA, rn_a.preprocess_input],
+        'resnet34baa' : [rn_a.ResNet34BAA, rn_a.preprocess_input],
         
         # ResNets with Full Augmented
-        'resnet18aa_test' : [rn.ResNet18AA, rn.preprocess_input],
-        'resnet34aa_test' : [rn.ResNet34AA, rn.preprocess_input],
+        'resnet18aa' : [rn_a.ResNet18AA, rn_a.preprocess_input],
+        'resnet34aa' : [rn_a.ResNet34AA, rn_a.preprocess_input],
      
         # SE-Nets
         'seresnet18': [rn.SEResNet18, rn.preprocess_input],
