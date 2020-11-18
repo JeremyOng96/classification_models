@@ -206,8 +206,7 @@ def AugmentedConv2d(  filters,
             attn_out = layers.UpSampling2D(interpolation = "bilinear")(attn_out)
             
         out = layers.Concatenate()([conv_out,attn_out])
-        out = layers.BatchNormalization()(out)
-        
+       
         return out
     
     return layer
