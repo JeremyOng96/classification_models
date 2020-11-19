@@ -200,7 +200,7 @@ def AugmentedConv2d(  filters,
         # Calculate the self attention of KQV matrix
         kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
         # Project the KQV matrix
-        kqv = layers.Conv2D(filters = self.dv,kernel_size=1,padding ="same", kernel_initializer="he_normal")(kqv)
+        kqv = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal")(kqv)
         # Upsample if necessary
         if strides == (1,1):
             kqv = layers.UpSampling2D(interpolation = "bilinear")(kqv)
