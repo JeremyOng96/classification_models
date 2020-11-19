@@ -247,7 +247,7 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=
         x = layers.Activation('relu', name=relu_name + '1')(x)
         
         # Define the self attention module right before residual block
-        x = SelfAttention2D(dk,dv,Nh,True)(x)
+        x = SelfAttention2D(dk,dv,Nh,False)(x)
         
         # defining shortcut connection
         if cut == 'pre':
@@ -361,7 +361,7 @@ def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), R
         x = layers.Activation('relu', name=relu_name + '1')(x)
         
         # Self attention layer at input
-        x = SelfAttention2D(dk,dv,Nh,True)(x)
+        x = SelfAttention2D(dk,dv,Nh,False)(x)
         # defining shortcut connection
         if cut == 'pre':
             shortcut = input_tensor
