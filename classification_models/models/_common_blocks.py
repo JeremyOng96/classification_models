@@ -183,7 +183,7 @@ def AugmentedConv2d(  filters,
                       Rk = 0.25,
                       Rv = 0.25,
                       Nh = 8,
-                      relative = True):
+                      relative = False):
     
     def layer(input_tensor):
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
@@ -196,7 +196,7 @@ def AugmentedConv2d(  filters,
         # Convolution for the KQV matrix
         kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal")(input_tensor)
         # Downsample the KQV matrix
-        kqv = layers.AveragePooling2D()(input_tensor)
+        kqv = layers.AveragePooling2D()(kqv)
         # Calculate the self attention of KQV matrix
         kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
         # Project the KQV matrix
