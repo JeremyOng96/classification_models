@@ -29,6 +29,10 @@ class ModelsFactory:
         'resnet18aa' : [rn_a.ResNet18AA, rn_a.preprocess_input],
         'resnet34aa' : [rn_a.ResNet34AA, rn_a.preprocess_input],
      
+        # ResNets with Self Attention
+        'resnet18sa' : [rn_a.ResNet18SA, rn_a.preprocess_input],
+        'resnet34sa' : [rn_a.ResNet34SA, rn_a.preprocess_input],
+        
         # SE-Nets
         'seresnet18': [rn.SEResNet18, rn.preprocess_input],
         'seresnet34': [rn.SEResNet34, rn.preprocess_input],
