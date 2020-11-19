@@ -48,10 +48,6 @@ class SelfAttention2D(keras.layers.Layer):
         self.dvh = self.dv // self.nh
 
         # Initialize the necessary layers
-        self.conv_kqv = layers.Conv2D(filters = 2*self.dk + self.dv,kernel_size = 1,padding = "same") # Convolutional layer to produce KQV matrix
-        self.conv_project = layers.Conv2D(filters = self.dv,kernel_size=1,padding ="same") # Convolutional layer of size 1 to project attention layer to size of filter
-        self.bn = layers.BatchNormalization()
-        self.softmax = layers.Softmax()
 
     def build(self, input_shape):
         self._shape = input_shape
@@ -63,13 +59,12 @@ class SelfAttention2D(keras.layers.Layer):
 
 
     def call(self,inputs,**kwargs):
-        # Input = [1,16,16,64] 
+        # Input is the KQV matrix
         # dk = 24, dv = 24
         flatten_hw = lambda x,d: tf.reshape(x, [-1, self.nh, self.H*self.W,d])
+        
         # Compute q, k, v matrix 
-
-        kqv = self.conv_kqv(inputs) # [1,16,16,72]
-        k, q, v = tf.split(kqv,[self.dk,self.dk,self.dv],axis = -1) # [1,16,16,24] for k q and v
+        k, q, v = tf.split(inputs,[self.dk,self.dk,self.dv],axis = -1) # [1,16,16,24] for k q and v
         # Rescale the value of q
         q *= (self.dkh ** -0.5)
 
@@ -88,17 +83,12 @@ class SelfAttention2D(keras.layers.Layer):
             logits += rel_logits_h
             logits += rel_logits_w
 
-
-        weights = self.softmax(logits)
+        weights = tf.nn.softmax(logits)
         attn_out = tf.matmul(weights, flatten_hw(v,self.dvh))
         attn_out = tf.reshape(attn_out,[-1,self.nh,self.H,self.W,self.dvh])
         attn_out = self.combine_heads_2d(attn_out)
 
-        # Project heads
-
-        out = self.conv_project(attn_out)
-
-        return out
+        return attn_out
 
     def shape_list(self,x):
         """
@@ -199,13 +189,23 @@ def AugmentedConv2d(  filters,
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
         dk = ei(filters*Rk)
         dv = ei(filters*Rv)
+        
+        # Normal convolution
         conv_out = layers.Conv2D(filters = filters-dv, kernel_size = kernel_size, strides = strides, padding = "same")(input_tensor)
-        downsample_tensor = layers.AveragePooling2D()(input_tensor)
-        attn_out = SelfAttention2D(dk,dv,Nh,relative)(downsample_tensor)
+        
+        # Convolution for the KQV matrix
+        kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal")(input_tensor)
+        # Downsample the KQV matrix
+        kqv = layers.AveragePooling2D()(input_tensor)
+        # Calculate the self attention of KQV matrix
+        kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
+        # Project the KQV matrix
+        kqv = layers.Conv2D(filters = self.dv,kernel_size=1,padding ="same", kernel_initializer="he_normal")(kqv)
+        # Upsample if necessary
         if strides == (1,1):
-            attn_out = layers.UpSampling2D(interpolation = "bilinear")(attn_out)
+            kqv = layers.UpSampling2D(interpolation = "bilinear")(kqv)
             
-        out = layers.Concatenate()([conv_out,attn_out])
+        out = layers.Concatenate()([conv_out,kqv])
        
         return out
     
