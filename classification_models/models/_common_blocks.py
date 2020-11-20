@@ -180,7 +180,7 @@ class SelfAttention2D(keras.layers.Layer):
 def SelfAttention( filters,
                    Rk=0.25,
                    Rv=0.25,
-                   Nh=8
+                   Nh=8,
                    relative=False):
     def layer(input_tensor): 
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
