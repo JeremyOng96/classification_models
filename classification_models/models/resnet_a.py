@@ -9,7 +9,7 @@ import numpy as np
 import collections
 
 
-from ._common_blocks import ChannelSE, AugmentedConv2d, SelfAttention2D
+from ._common_blocks import ChannelSE, AugmentedConv2d, SelfAttention
 from .. import get_submodules_from_kwargs
 from ..weights import load_model_weights
 
@@ -233,10 +233,6 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=
     """
 
     def layer(input_tensor):
-        ei = lambda x : int(np.ceil(x/Nh)*Nh)
-        
-        dk = ei(Rk*filters) # Depth of keys
-        dv = ei(Rv*filters) # Depth of values
         
         # get params and names of layers
         conv_params = get_conv_params()
@@ -247,7 +243,7 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=
         x = layers.Activation('relu', name=relu_name + '1')(x)
         
         # Define the self attention module right before residual block
-        x = SelfAttention2D(dk,dv,Nh,False)(x)
+        x = SelfAttention(filters,Rk=1,Rv=1)(x)
         
         # defining shortcut connection
         if cut == 'pre':
@@ -348,20 +344,16 @@ def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), R
     """
 
     def layer(input_tensor):
-        ei = lambda x : int(np.ceil(x/Nh)*Nh)
         # get params and names of layers
         conv_params = get_conv_params()
         bn_params = get_bn_params()
         conv_name, bn_name, relu_name, sc_name = handle_block_names(stage, block)
-
-        dk = ei(Rk*filters) # Depth of keys
-        dv = ei(Rv*filters) # Depth of values
         
         x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
         x = layers.Activation('relu', name=relu_name + '1')(x)
         
         # Self attention layer at input
-        x = SelfAttention2D(dk,dv,Nh,False)(x)
+        x = SelfAttention(filters,Rk=1,Rv=1)(x)
         # defining shortcut connection
         if cut == 'pre':
             shortcut = input_tensor
