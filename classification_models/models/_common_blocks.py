@@ -176,6 +176,25 @@ class SelfAttention2D(keras.layers.Layer):
         }
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
+    
+def SelfAttention( filters,
+                   Rk=0.25,
+                   Rv=0.25,
+                   Nh=8
+                   relative=False):
+    def layer(input_tensor): 
+        ei = lambda x : int(np.ceil(x/Nh)*Nh)
+        dk = ei(filters*Rk)
+        dv = ei(filters*Rv)
+        
+        # Form the MHA matrix
+        kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal")(input_tensor)
+        kqv = layers.AveragePooling2D()(kqv)
+        kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
+        kqv = layers.UpSampling2D(interpolation = "bilinear")(kqv)
+        
+        return kqv
+    return layer
 
 def AugmentedConv2d(  filters,
                       kernel_size,
