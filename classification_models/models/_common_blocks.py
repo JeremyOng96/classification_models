@@ -4,6 +4,22 @@ import numpy as np
 from tensorflow import keras
 from keras import layers
 
+class Scale(keras.layers.Layer):
+
+    def __init__(self, **kwargs):
+        super(Scale, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        # Create a trainable weight variable for this layer.
+        self.alpha = self.add_weight(name='gamma',shape=(1,),initializer=tf.keras.initializers.Zeros())
+        self.beta = self.add_weight(name='gamma',shape=(1,),initializer=tf.keras.initializers.Ones())
+
+
+    def call(self, inputs):
+        a, b = inputs
+        ratio = self.alpha/(self.alpha+self.beta)
+        return tf.add(ratio*a,(1-ratio)*b)
+
 class SelfAttention2D(keras.layers.Layer):
     def __init__(self, depth_k, depth_v, num_heads, relative, **kwargs):
         """
