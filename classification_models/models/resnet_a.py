@@ -217,7 +217,7 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
 
     return layer
 
-def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=1,Nh=8, attention = None, cut='pre'):
+def attention_residual_conv_block(filters, stage, block, strides=(1, 1), attention = None, cut='pre'):
     """Self attention added to the input before residual conv block.
     # Arguments
         input_tensor: input tensor
@@ -245,11 +245,11 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=
         # defining shortcut connection
         if cut == 'pre':
             shortcut = input_tensor 
-            attn_shortcut = SelfAttention(filters)(input_tensor)
+            attn_shortcut = SelfAttention(filters,strides)(input_tensor)
             shortcut = Scale()([attn_shortcut,shortcut])
         elif cut == 'post':
             shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
-            attn_shortcut = SelfAttention(filters)(x)
+            attn_shortcut = SelfAttention(filters,strides)(x)
             shortcut = Scale()([attn_shortcut,shortcut])
         else:
             raise ValueError('Cut type not in ["pre", "post"]')
