@@ -192,8 +192,10 @@ def SelfAttention( filters,
         kqv = layers.AveragePooling2D()(kqv)
         kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
         kqv = layers.UpSampling2D(interpolation = "bilinear")(kqv)
-        
-        return kqv
+        # Projection of MHA
+        attn = layers.Conv2D(filters,1)(kqv)
+        return attn
+    
     return layer
 
 def AugmentedConv2d(  filters,
