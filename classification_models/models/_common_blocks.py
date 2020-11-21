@@ -208,7 +208,7 @@ def SelfAttention( filters,
         kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal")(input_tensor)
         kqv = layers.AveragePooling2D()(kqv)
         kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
-        if strides = (1,1):
+        if strides == (1,1):
             kqv = layers.UpSampling2D(interpolation = "bilinear")(kqv)
         # Projection of MHA
         attn = layers.Conv2D(filters,1)(kqv)
