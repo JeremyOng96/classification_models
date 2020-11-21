@@ -9,7 +9,7 @@ import numpy as np
 import collections
 
 
-from ._common_blocks import ChannelSE, AugmentedConv2d, SelfAttention
+from ._common_blocks import ChannelSE, AugmentedConv2d, SelfAttention, Scale
 from .. import get_submodules_from_kwargs
 from ..weights import load_model_weights
 
@@ -241,15 +241,16 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=
 
         x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
         x = layers.Activation('relu', name=relu_name + '1')(x)
-        
-        # Define the self attention module right before residual block
-        x = SelfAttention(filters,Rk=1,Rv=1)(x)
-        
+               
         # defining shortcut connection
         if cut == 'pre':
-            shortcut = input_tensor
+            shortcut = input_tensor 
+            attn_shortcut = SelfAttention(filters)(input_tensor)
+            shortcut = Scale()([attn_shortcut,shortcut])
         elif cut == 'post':
             shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
+            attn_shortcut = SelfAttention(filters)(x)
+            shortcut = Scale()([attn_shortcut,shortcut])
         else:
             raise ValueError('Cut type not in ["pre", "post"]')
 
@@ -269,6 +270,7 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1),Rk=1,Rv=
             x = attention(x)
 
         # add residual connection
+        
         x = layers.Add()([x, shortcut])
         return x
 
@@ -352,13 +354,15 @@ def attention_residual_bottleneck_block(filters, stage, block, strides=(1, 1), R
         x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
         x = layers.Activation('relu', name=relu_name + '1')(x)
         
-        # Self attention layer at input
-        x = SelfAttention(filters,Rk=1,Rv=1)(x)
         # defining shortcut connection
         if cut == 'pre':
             shortcut = input_tensor
+            attn_shortcut = SelfAttention(filters)(input_tensor)
+            shortcut = Scale()([attn_shortcut,shortcut])
         elif cut == 'post':
             shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
+            attn_shortcut = SelfAttention(filters)(x)
+            shortcut = Scale()([attn_shortcut,shortcut])
         else:
             raise ValueError('Cut type not in ["pre", "post"]')
 
