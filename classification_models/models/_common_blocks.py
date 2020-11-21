@@ -11,8 +11,8 @@ class Scale(keras.layers.Layer):
 
     def build(self, input_shape):
         # Create a trainable weight variable for this layer.
-        self.alpha = self.add_weight(name='gamma',shape=(1,),initializer=tf.keras.initializers.Zeros())
-        self.beta = self.add_weight(name='gamma',shape=(1,),initializer=tf.keras.initializers.Ones())
+        self.alpha = self.add_weight(name='alpha',shape=(1,),initializer=tf.keras.initializers.Zeros())
+        self.beta = self.add_weight(name='beta',shape=(1,),initializer=tf.keras.initializers.Ones())
 
 
     def call(self, inputs):
