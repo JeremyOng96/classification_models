@@ -102,7 +102,7 @@ class SelfAttention2D(keras.layers.Layer):
         weights = tf.nn.softmax(logits)
         attn_out = tf.matmul(weights, flatten_hw(v,self.dvh))
         attn_out = tf.reshape(attn_out,[-1,self.nh,self.H,self.W,self.dvh])
-        attn_out = self.combine_heads_2d(attn_out)
+        attn_out = self.combine_heads_2d(attn_out) # Output shape = [B,H,W,dv]
 
         return attn_out
 
