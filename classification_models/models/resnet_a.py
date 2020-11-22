@@ -241,7 +241,7 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
 
         x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
         x = layers.Activation('relu', name=relu_name + '1')(x)
-        x = SelfAttention(filters,strides=(1,1),Nh=1)(input_tensor)  
+        x = SelfAttention(filters,strides=(1,1),Nh=1)(x)  
         # defining shortcut connection
         if cut == 'pre':
             shortcut = x
