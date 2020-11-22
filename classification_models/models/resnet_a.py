@@ -241,16 +241,14 @@ def attention_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
 
         x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
         x = layers.Activation('relu', name=relu_name + '1')(x)
-               
+        x = SelfAttention(filters,strides=(1,1),Nh=1)(input_tensor)  
         # defining shortcut connection
         if cut == 'pre':
-            shortcut = input_tensor 
-            attn_shortcut = SelfAttention(filters,strides)(input_tensor)
-            shortcut = Scale()([attn_shortcut,shortcut])
+            shortcut = x
+
         elif cut == 'post':
             shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
-            attn_shortcut = SelfAttention(filters,strides)(x)
-            shortcut = Scale()([attn_shortcut,shortcut])
+
         else:
             raise ValueError('Cut type not in ["pre", "post"]')
 
