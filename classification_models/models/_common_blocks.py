@@ -236,7 +236,7 @@ def AugmentedConv2d(  filters,
         dv = ei(filters*Rv)
         
         # Normal convolution
-        conv_out = layers.Conv2D(filters = filters-dv, kernel_size = kernel_size, strides = strides, padding = "same",name=normal_name)(input_tensor)
+        conv_out = layers.Conv2D(filters = filters-dv, kernel_size = kernel_size, padding = "same",name=normal_name)(input_tensor)
         
         # Convolution for the KQV matrix
         kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal",name=kqv_name)(input_tensor)
