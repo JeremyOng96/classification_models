@@ -223,11 +223,12 @@ def AugmentedConv2d(  filters,
                       Nh = 1,
                       relative = True,
                       stage = None,
-                      block = None):
+                      block = None,
+                      part = None):
     
-    kqv_name = f'stage{stage+1}_unit{block+1}_kqv'
-    normal_name = f'stage{stage+1}_unit{block+1}_normal'
-    projection_name = f'stage{stage+1}_unit{block+1}_projection'
+    kqv_name = f'stage{stage+1}_unit{block+1}_part{part}_kqv'
+    normal_name = f'stage{stage+1}_unit{block+1}_part{part}_normal'
+    projection_name = f'stage{stage+1}_unit{block+1}_part{part}_projection'
     
     def layer(input_tensor):
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
