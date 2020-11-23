@@ -218,11 +218,16 @@ def SelfAttention( filters,
 
 def AugmentedConv2d(  filters,
                       kernel_size,
-                      strides,
                       Rk = 0.25,
                       Rv = 0.25,
                       Nh = 1,
-                      relative = False):
+                      relative = True,
+                      stage = None,
+                      block = None):
+    
+    kqv_name = f'stage{stage+1}_unit{block+1}_kqv'
+    normal_name = f'stage{stage+1}_unit{block+1}_normal'
+    projection_name = f'stage{stage+1}_unit{block+1}_projection'
     
     def layer(input_tensor):
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
@@ -230,16 +235,15 @@ def AugmentedConv2d(  filters,
         dv = ei(filters*Rv)
         
         # Normal convolution
-        conv_out = layers.Conv2D(filters = filters-dv, kernel_size = kernel_size, strides = strides, padding = "same")(input_tensor)
+        conv_out = layers.Conv2D(filters = filters-dv, kernel_size = kernel_size, strides = strides, padding = "same",name=normal_name)(input_tensor)
         
         # Convolution for the KQV matrix
-        kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal")(input_tensor)
+        kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal",name=kqv_name)(input_tensor)
         # Calculate the self attention of KQV matrix
         kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
         # Project the KQV matrix
-        kqv = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal")(kqv)
-        # Upsample if necessary
-            
+        kqv = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal",name=projection_name)(kqv)
+           
         out = layers.Concatenate()([conv_out,kqv])
        
         return out
