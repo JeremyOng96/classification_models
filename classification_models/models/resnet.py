@@ -355,7 +355,7 @@ MODELS_PARAMS = {
     'seresnet18': ModelParams('seresnet18', (2, 2, 2, 2), residual_conv_block, ChannelSE),
     'seresnet34': ModelParams('seresnet34', (3, 4, 6, 3), residual_conv_block, ChannelSE),
     'resnet18aa':ModelParams('resnet18aa', (2,2,2,2), augmented_residual_conv_block,None),
-    'resnet34aa':ModelParams('resnet34aa',(3,4,6,3),augmented_residual_conv_block)
+    'resnet34aa':ModelParams('resnet34aa',(3,4,6,3),augmented_residual_conv_block,None)
 }
 
 
