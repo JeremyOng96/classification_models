@@ -382,6 +382,29 @@ def ResNet34(input_shape=None, input_tensor=None, weights=None, classes=1000, in
         **kwargs
     )
 
+def ResNet18AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet18'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
+
+
+def ResNet34AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+    return ResNet(
+        MODELS_PARAMS['resnet34'],
+        input_shape=input_shape,
+        input_tensor=input_tensor,
+        include_top=include_top,
+        classes=classes,
+        weights=weights,
+        **kwargs
+    )
+
 
 def ResNet50(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
