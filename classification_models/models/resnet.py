@@ -124,7 +124,6 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
     """
 
     def layer(input_tensor):
-
         # get params and names of layers
         conv_params = get_conv_params()
         bn_params = get_bn_params()
