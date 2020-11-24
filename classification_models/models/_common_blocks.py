@@ -220,7 +220,7 @@ def AugmentedConv2d(  filters,
                       kernel_size,
                       Rk = 0.25,
                       Rv = 0.25,
-                      Nh = 1,
+                      Nh = 8,
                       relative = True,
                       stage = None,
                       block = None,
@@ -240,9 +240,9 @@ def AugmentedConv2d(  filters,
         
         # Convolution for the KQV matrix
         kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal",name=kqv_name)(input_tensor)
-        # Calculate the self attention of KQV matrix
+        # Calculate the Multi Headed Attention and concatenates all the heads
         kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
-        # Project the KQV matrix
+        # Project the result of MHA 
         kqv = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal",name=projection_name)(kqv)
            
         out = layers.Concatenate()([conv_out,kqv])
