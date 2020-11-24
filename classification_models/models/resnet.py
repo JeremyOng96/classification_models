@@ -141,7 +141,7 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
             raise ValueError('Cut type not in ["pre", "post"]')
 
         # continue with convolution layers
-        if str(stage) in '234' and str(block) in '123456':
+        if str(stage+1) in '234' and str(block+1) in '123456':
             if strides != (1,1):
                 x = layers.Conv2D(filters,(1,1), strides = strides)(x) # Downsampling at block 1 
                 
