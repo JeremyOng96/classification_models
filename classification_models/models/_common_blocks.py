@@ -216,7 +216,7 @@ def SelfAttention( filters,
     
     return layer
 
-def AugmentedConv2d(  filters,
+def AugmentedConv2d(  f_out,
                       kernel_size,
                       Rk = 0.25,
                       Rv = 0.25,
@@ -232,20 +232,20 @@ def AugmentedConv2d(  filters,
     
     def layer(input_tensor):
         ei = lambda x : int(np.ceil(x/Nh)*Nh)
-        dk = ei(filters*Rk)
-        dv = ei(filters*Rv)
+        dk = ei(f_out*Rk)
+        dv = ei(f_out*Rv)
         
         # Normal convolution
-        conv_out = layers.Conv2D(filters = filters-dv, kernel_size = kernel_size, padding = "same",name=normal_name)(input_tensor)
+        conv_out = layers.Conv2D(filters = f_out-dv, kernel_size = kernel_size, padding = "same",name=normal_name)(input_tensor)
         
         # Convolution for the KQV matrix
         kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal",name=kqv_name)(input_tensor)
         # Calculate the Multi Headed Attention and concatenates all the heads
-        kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
+        attn_out = SelfAttention2D(dk,dv,Nh,relative)(kqv)
         # Project the result of MHA 
-        kqv = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal",name=projection_name)(kqv)
+        attn_out = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal",name=projection_name)(attn_out)
            
-        out = layers.Concatenate()([conv_out,kqv])
+        out = layers.Concatenate()([conv_out,attn_out])
        
         return out
     
