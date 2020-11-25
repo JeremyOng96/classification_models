@@ -2,7 +2,7 @@ import os
 import collections
 
 
-from ._common_blocks import ChannelSE
+from ._common_blocks import ChannelSE, cbam_block
 from .. import get_submodules_from_kwargs
 from ..weights import load_model_weights
 from ..attn_augconv import augmented_conv2d
@@ -95,65 +95,6 @@ def residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, c
         x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
         x = layers.Activation('relu', name=relu_name + '2')(x)
-        
-        x = layers.ZeroPadding2D(padding=(1, 1))(x)
-        x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
-
-        # use attention block if defined
-        if attention is not None:
-            x = attention(x)
-
-        # add residual connection
-        x = layers.Add()([x, shortcut])
-        return x
-
-    return layer
-
-def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, cut='pre'):
-    """Augmented residual conv block which has conv layer at shortcut when stride = 2.
-    # Arguments
-    input_tensor: input tensor
-    kernel_size: default 3, the kernel size of
-        middle conv layer at main path
-    filters: list of integers, the filters of 3 conv layer at main path
-    stage: integer, current stage label, used for generating layer names
-    block: 'a','b'..., current block label, used for generating layer names
-    cut: one of 'pre', 'post'. used to decide where skip connection is taken
-    all_attn: If True all conv blocks are replaced with augmented convolution. Else, only the last block is augmented conv
-    # Returns
-    Output tensor for the block.
-    """
-
-    def layer(input_tensor):
-        # get params and names of layers
-        conv_params = get_conv_params()
-        bn_params = get_bn_params()
-        conv_name, bn_name, relu_name, sc_name = handle_block_names(stage, block)
-
-        x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
-        x = layers.Activation('relu', name=relu_name + '1')(x)
-
-        # defining shortcut connection
-        if cut == 'pre':
-            shortcut = input_tensor
-        elif cut == 'post':
-            shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
-        else:
-            raise ValueError('Cut type not in ["pre", "post"]')
-
-        # continue with convolution layers
-        if str(stage+1) in '234' and str(block+1) in '123456':
-            if strides != (1,1):
-                x = layers.Conv2D(filters,(3,3), strides = strides, padding='same',kernel_initializer='he_uniform')(x) # Downsampling at block 1 
-                
-            x = augmented_conv2d(x, filters = filters, kernel_size = (3,3), depth_k = 0.25, depth_v = 0.25, num_heads = 8, relative_encodings = True)
-
-            x = layers.Activation('relu', name=relu_name + '2')(x)      
-        else:
-            x = layers.ZeroPadding2D(padding=(1, 1))(x)
-            x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
-            x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
-            x = layers.Activation('relu', name=relu_name + '2')(x)
         
         x = layers.ZeroPadding2D(padding=(1, 1))(x)
         x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
@@ -355,8 +296,8 @@ MODELS_PARAMS = {
     'resnet152': ModelParams('resnet152', (3, 8, 36, 3), residual_bottleneck_block, None),
     'seresnet18': ModelParams('seresnet18', (2, 2, 2, 2), residual_conv_block, ChannelSE),
     'seresnet34': ModelParams('seresnet34', (3, 4, 6, 3), residual_conv_block, ChannelSE),
-    'resnet18aa':ModelParams('resnet18aa', (2,2,2,2), augmented_residual_conv_block,None),
-    'resnet34aa':ModelParams('resnet34aa',(3,4,6,3),augmented_residual_conv_block,None)
+    'resnet18cbam':ModelParams('resnet18cbam', (2,2,2,2), augmented_residual_conv_block,cbam_block),
+    'resnet34cbam':ModelParams('resnet34cbam',(3,4,6,3),augmented_residual_conv_block,cbam_block)
 }
 
 
@@ -383,9 +324,9 @@ def ResNet34(input_shape=None, input_tensor=None, weights=None, classes=1000, in
         **kwargs
     )
 
-def ResNet18AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+def ResNet18CBAM(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
-        MODELS_PARAMS['resnet18aa'],
+        MODELS_PARAMS['resnet18cbam'],
         input_shape=input_shape,
         input_tensor=input_tensor,
         include_top=include_top,
@@ -397,7 +338,7 @@ def ResNet18AA(input_shape=None, input_tensor=None, weights=None, classes=1000, 
 
 def ResNet34AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
-        MODELS_PARAMS['resnet34aa'],
+        MODELS_PARAMS['resnet34cbam'],
         input_shape=input_shape,
         input_tensor=input_tensor,
         include_top=include_top,
