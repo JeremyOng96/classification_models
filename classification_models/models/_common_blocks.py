@@ -66,19 +66,19 @@ def spatial_attention(input_feature):
 	kernel_size = 7
 	
 	if K.image_data_format() == "channels_first":
-		channel = input_feature._keras_shape[1]
-		cbam_feature = Permute((2,3,1))(input_feature)
+		channel = input_feature.shape[1]
+		cbam_feature = layers.Permute((2,3,1))(input_feature)
 	else:
-		channel = input_feature._keras_shape[-1]
+		channel = input_feature.shape[-1]
 		cbam_feature = input_feature
 	
-	avg_pool = Lambda(lambda x: K.mean(x, axis=3, keepdims=True))(cbam_feature)
+	avg_pool = layers.Lambda(lambda x: K.mean(x, axis=3, keepdims=True))(cbam_feature)
 	assert avg_pool.shape[-1] == 1
-	max_pool = Lambda(lambda x: K.max(x, axis=3, keepdims=True))(cbam_feature)
+	max_pool = layers.Lambda(lambda x: K.max(x, axis=3, keepdims=True))(cbam_feature)
 	assert max_pool.shape[-1] == 1
-	concat = Concatenate(axis=3)([avg_pool, max_pool])
+	concat = layers.Concatenate(axis=3)([avg_pool, max_pool])
 	assert concat.shape[-1] == 2
-	cbam_feature = Conv2D(filters = 1,
+	cbam_feature = layers.Conv2D(filters = 1,
 					kernel_size=kernel_size,
 					strides=1,
 					padding='same',
