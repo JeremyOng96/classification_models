@@ -14,7 +14,7 @@ def cbam_block(ratio=16, **kwargs):
 	"""
 	def layer(input_tensor):
 		output = channel_attention(input_tensor, ratio)
-		output = spatial_attention(input_tensor)
+		output = spatial_attention(output)
     
 		return output
 	return layer
