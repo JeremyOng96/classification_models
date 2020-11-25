@@ -8,7 +8,70 @@ import tensorflow.keras.backend as K
 from tensorflow.keras import initializers
 
 
-class SelfAttention2D(keras.layers.Layer):
+class SelfAttention(keras.layers.Layer):
+    def __init__(self,
+                 stage=None,
+                 gamma_initializer=tf.zeros_initializer(),
+                 gamma_regularizer=None,
+                 gamma_constraint=None,
+                 **kwargs):
+        super(SelfAttention, self).__init__(**kwargs)
+        self.gamma_initializer = gamma_initializer
+        self.gamma_regularizer = gamma_regularizer
+        self.gamma_constraint = gamma_constraint
+        
+        self.convk_name = 'decoder_stage{}_k'.format(stage)
+        self.convq_name = 'decoder_stage{}_q'.format(stage)
+        self.convv_name = 'decoder_stage{}_v'.format(stage)
+               
+        self.softmax = layers.Activation('softmax')
+    def build(self, input_shape):
+        self.gamma = self.add_weight(shape=(1, ),
+                                     initializer=self.gamma_initializer,
+                                     name='gamma',
+                                     regularizer=self.gamma_regularizer,
+                                     constraint=self.gamma_constraint)
+        
+        self._shape = input_shape
+        _, self.h, self.w, self.filters = input_shape
+        
+        self.conv_k = layers.Conv2D(self.filters//8, 1, use_bias=False, kernel_initializer='he_normal',name=self.convk_name)
+        self.conv_q = layers.Conv2D(self.filters//8, 1, use_bias=False, kernel_initializer='he_normal',name=self.convq_name)
+        self.conv_v = layers.Conv2D(self.filters, 1, use_bias=False, kernel_initializer='he_normal',name=self.convv_name)
+        
+        self.built = True
+
+    def call(self, input_tensor):
+
+        self.k = self.conv_k(input_tensor)
+        self.q = self.conv_q(input_tensor)
+        self.v = self.conv_v(input_tensor)
+        self.k = K.reshape(self.k,(-1,self.h*self.w,self.filters//8)) # [B,HW,f]
+        self.q = tf.transpose(K.reshape(self.q, (-1, self.h*self.w, self.filters // 8)), (0, 2, 1))
+        self.logits = K.batch_dot(self.k, self.q)
+        self.xd = self.softmax(self.logits)
+        self.v = K.reshape(self.v, (-1, self.h*self.w, self.filters))
+        self.attn = K.batch_dot(self.xd, self.v) # [B,Hw,f]
+        self.attn = K.reshape(self.attn, (-1, self.h, self.w, self.filters))
+
+        self.out = self.gamma*self.attn + input_tensor
+        return self.out
+    
+    def get_config(self):
+        config = {
+            "gamma" : self.gamma,
+            "k" : self.k,
+            "q" : self.q,
+            "v" : self.v,
+            "attn" : self.attn,
+            "w": self.xd,
+            "out" : self.out
+        }
+        base_config = super().get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+    
+    
+class MultiHeadAttention2D(keras.layers.Layer):
     def __init__(self, depth_k, depth_v, num_heads, relative, **kwargs):
         """
         Applies attention augmentation on a convolutional layer output.
@@ -181,29 +244,6 @@ class SelfAttention2D(keras.layers.Layer):
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
     
-def SelfAttention( filters,
-                   strides,
-                   Rk=0.25,
-                   Rv=0.25,
-                   Nh=8,
-                   relative=False):
-    def layer(input_tensor): 
-        ei = lambda x : int(np.ceil(x/Nh)*Nh)
-        dk = ei(filters*Rk)
-        dv = ei(filters*Rv)
-        
-        # Form the MHA matrix
-        kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal")(input_tensor)
-        # kqv = layers.AveragePooling2D()(kqv)
-        kqv = SelfAttention2D(dk,dv,Nh,relative)(kqv)
-        # if strides == (1,1):
-        #    kqv = layers.UpSampling2D(interpolation = "bilinear")(kqv)
-        # Projection of MHA
-        kqv = layers.Conv2D(filters,1)(kqv)
-        return kqv
-    
-    return layer
-
 def AugmentedConv2d(  f_out,
                       kernel_size,
                       Rk = 0.25,
@@ -229,7 +269,7 @@ def AugmentedConv2d(  f_out,
         # Convolution for the KQV matrix
         kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal",name=kqv_name)(input_tensor)
         # Calculate the Multi Headed Attention and concatenates all the heads
-        attn_out = SelfAttention2D(dk,dv,Nh,relative)(kqv)
+        attn_out = MultiHeadAttention2D(dk,dv,Nh,relative)(kqv)
         # Project the result of MHA 
         attn_out = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal",name=projection_name)(attn_out)
            
