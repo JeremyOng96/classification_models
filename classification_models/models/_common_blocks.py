@@ -1,6 +1,7 @@
 from classification_models import get_submodules_from_kwargs
 import tensorflow as tf
 import numpy as np
+from aa_conv import augmented_conv2d
 from tensorflow import keras
 from keras import layers
 
