@@ -336,7 +336,7 @@ def ResNet18CBAM(input_shape=None, input_tensor=None, weights=None, classes=1000
     )
 
 
-def ResNet34AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
+def ResNet34CBAM(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
         MODELS_PARAMS['resnet34cbam'],
         input_shape=input_shape,
