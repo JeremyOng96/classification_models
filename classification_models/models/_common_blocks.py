@@ -8,15 +8,16 @@ import tensorflow.keras.backend as K
 from tensorflow.keras import initializers
 
 
-def cbam_block(input_feature, ratio=16, **kwargs):
+def cbam_block(ratio=16, **kwargs):
 	"""Contains the implementation of Convolutional Block Attention Module(CBAM) block.
 	As described in https://arxiv.org/abs/1807.06521.
 	"""
-	
-	output = channel_attention(input_feature, ratio)
-	output = spatial_attention(input_feature)
+	def layer(input_tensor):
+		output = channel_attention(input_tensor, ratio)
+		output = spatial_attention(input_tensor)
     
-	return output
+		return output
+	return layer
 
 def channel_attention(input_feature, ratio=16):
 	
