@@ -294,7 +294,7 @@ def augmented_conv2d(ip, filters, kernel_size=(3, 3), strides=(1, 1),
     attn_out = AttentionAugmentation2D(depth_k, depth_v, num_heads, relative_encodings)(qkv_conv)
     attn_out = _conv_layer(depth_v, kernel_size=(1, 1))(attn_out)
 
-    output = concatenate([conv_out, attn_out], axis=channel_axis)
+    output = layers.Concatenate(axis = channel_axis)([conv_out,attn_out])
     output = layers.BatchNormalization()(output)
     return output
 
