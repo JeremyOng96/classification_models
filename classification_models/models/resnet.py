@@ -143,11 +143,10 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         # continue with convolution layers
         if str(stage+1) in '234' and str(block+1) in '123456':
             if strides != (1,1):
-                x = layers.Conv2D(filters,(1,1), strides = strides)(x) # Downsampling at block 1 
-            
+                #x = layers.Conv2D(filters,(1,1), strides = strides)(x) # Downsampling at block 1 
+                x = layers.AveragePooling2D()(x)
             x = augmented_conv2d(x, filters = filters, kernel_size = (3,3), depth_k = 0.25, depth_v = 0.25, num_heads = 8, relative_encodings = True)
-#             x = AugmentedConv2d(filters,(3,3),stage=stage,block=block,part='a')(x)
-#             x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
+
             x = layers.Activation('relu', name=relu_name + '2')(x)      
         else:
             x = layers.ZeroPadding2D(padding=(1, 1))(x)
