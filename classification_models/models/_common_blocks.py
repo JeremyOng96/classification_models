@@ -8,7 +8,7 @@ import tensorflow.keras.backend as K
 from tensorflow.keras import initializers
 
 
-def cbam_block(input_feature, ratio=16):
+def cbam_block(input_feature, ratio=16, **kwargs):
 	"""Contains the implementation of Convolutional Block Attention Module(CBAM) block.
 	As described in https://arxiv.org/abs/1807.06521.
 	"""
