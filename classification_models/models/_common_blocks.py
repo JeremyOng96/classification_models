@@ -1,5 +1,4 @@
 from classification_models import get_submodules_from_kwargs
-import attn_augconv
 import tensorflow as tf
 import numpy as np
 from tensorflow import keras
