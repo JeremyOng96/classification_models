@@ -54,8 +54,8 @@ def channel_attention(input_feature, ratio=16):
 	max_pool = shared_layer_two(max_pool)
 	assert max_pool.shape[1:] == (1,1,channel)
 	
-	cbam_feature = Add()([avg_pool,max_pool])
-	cbam_feature = Activation('sigmoid')(cbam_feature)
+	cbam_feature = layers.Add()([avg_pool,max_pool])
+	cbam_feature = layers.Activation('sigmoid')(cbam_feature)
 	
 	if K.image_data_format() == "channels_first":
 		cbam_feature = layers.Permute((3, 1, 2))(cbam_feature)
