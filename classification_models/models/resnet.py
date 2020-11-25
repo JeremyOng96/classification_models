@@ -5,7 +5,6 @@ import collections
 from ._common_blocks import ChannelSE, cbam_block
 from .. import get_submodules_from_kwargs
 from ..weights import load_model_weights
-from ..attn_augconv import augmented_conv2d
 
 backend = None
 layers = None
