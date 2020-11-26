@@ -148,7 +148,10 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         
         if str(stage+1) in "234":
             x = AugmentedConv2D(filters, (3,3), stage=stage+1,block=block+1)(x)
-
+        else:
+            x = layers.ZeroPadding2D(padding=(1, 1))(x)
+            x = layers.Conv2D(filters, (3, 3), name=conv_name + '2', **conv_params)(x)
+            
         # use attention block if defined
         if attention is not None:
             x = attention(x)
