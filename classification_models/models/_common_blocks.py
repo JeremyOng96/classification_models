@@ -319,7 +319,7 @@ class AttentionAugmented2D(keras.layers.Layer):
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
     
-def AugmentedConv2d(  f_out,
+def AugmentedConv2D(  f_out,
                       kernel_size,
                       Rk = 0.25,
                       Rv = 0.25,
