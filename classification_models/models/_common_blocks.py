@@ -348,7 +348,7 @@ def AugmentedConv2D(  f_out,
         attn_out = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal",name=projection_name)(attn_out)
            
         out = layers.Concatenate()([conv_out,attn_out])
-       
+       	out = layers.BatchNormalization()(out)
         return out
     
     return layer
