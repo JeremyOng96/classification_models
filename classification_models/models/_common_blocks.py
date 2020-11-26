@@ -23,17 +23,8 @@ def channel_attention(input_feature, ratio=16):
 	channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 	channel = input_feature.shape[channel_axis]
 	
-	shared_layer_one = layers.Dense(channel//ratio,
-							        activation='relu',
-							        kernel_initializer='he_normal',
-							        use_bias=True,
-							        bias_initializer='zeros')
-    
-	shared_layer_two = layers.Dense(channel,
-							 kernel_initializer='he_normal',
-							 use_bias=True,
-							 bias_initializer='zeros')
-	
+	shared_layer_one = layers.Dense(channel//ratio,activation='relu',kernel_initializer='he_normal',use_bias=True,bias_initializer='zeros')    
+	shared_layer_two = layers.Dense(channel,kernel_initializer='he_normal',use_bias=True,bias_initializer='zeros')	
     
     # Use average pooling layers
 	avg_pool = layers.GlobalAveragePooling2D()(input_feature)    
@@ -155,7 +146,7 @@ class SelfAttention(keras.layers.Layer):
         return dict(list(base_config.items()) + list(config.items()))
     
     
-class MultiHeadAttention2D(keras.layers.Layer):
+class AttentionAugmented2D(keras.layers.Layer):
     def __init__(self, depth_k, depth_v, num_heads, relative, **kwargs):
         """
         Applies attention augmentation on a convolutional layer output.
@@ -353,7 +344,7 @@ def AugmentedConv2d(  f_out,
         # Convolution for the KQV matrix
         kqv = layers.Conv2D(filters = 2*dk + dv,kernel_size = 1,padding = "same",kernel_initializer="he_normal",name=kqv_name)(input_tensor)
         # Calculate the Multi Headed Attention and concatenates all the heads
-        attn_out = MultiHeadAttention2D(dk,dv,Nh,relative)(kqv)
+        attn_out = AttentionAugmented2D(dk,dv,Nh,relative)(kqv)
         # Project the result of MHA 
         attn_out = layers.Conv2D(filters = dv,kernel_size=1,padding ="same", kernel_initializer="he_normal",name=projection_name)(attn_out)
            
