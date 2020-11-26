@@ -32,7 +32,7 @@ def handle_block_names(stage, block):
 
 def get_conv_params(**params):
     default_conv_params = {
-        'kernel_initializer': 'he_uniform',
+        'kernel_initializer': 'he_normal',
         'use_bias': False,
         'padding': 'valid',
     }
