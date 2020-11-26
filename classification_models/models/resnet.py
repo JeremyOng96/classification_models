@@ -348,8 +348,8 @@ MODELS_PARAMS = {
     'seresnet34': ModelParams('seresnet34', (3, 4, 6, 3), residual_conv_block, ChannelSE),
     'resnet18cbam':ModelParams('resnet18cbam', (2,2,2,2), residual_conv_block,cbam_block),
     'resnet34cbam':ModelParams('resnet34cbam',(3,4,6,3),residual_conv_block,cbam_block),
-    'resnet18aa':ModelParams('resnet18aa', (2,2,2,2), augmented_residual_conv_block),
-    'resnet34aa':ModelParams('resnet34aa',(3,4,6,3), augmented_residual_conv_block)
+    'resnet18aa':ModelParams('resnet18aa', (2,2,2,2), augmented_residual_conv_block,None),
+    'resnet34aa':ModelParams('resnet34aa',(3,4,6,3), augmented_residual_conv_block,None)
 }
 
 
