@@ -18,16 +18,16 @@ def cbam_block(ratio=16, **kwargs):
 		return output
 	return layer
 
-def channel_attention(input_feature, ratio=16):
+def channel_attention(input_tensor, ratio=16):
 	
 	channel_axis = 1 if K.image_data_format() == "channels_first" else -1
-	channel = input_feature.shape[channel_axis]
+	channel = input_tensor.shape[channel_axis]
 	
 	shared_layer_one = layers.Dense(channel//ratio,activation='relu',kernel_initializer='he_normal',use_bias=True,bias_initializer='zeros')    
 	shared_layer_two = layers.Dense(channel,kernel_initializer='he_normal',use_bias=True,bias_initializer='zeros')	
     
     # Use average pooling layers
-	avg_pool = layers.GlobalAveragePooling2D()(input_feature)    
+	avg_pool = layers.GlobalAveragePooling2D()(input_tensor)    
 	avg_pool = layers.Reshape((1,1,channel))(avg_pool)
 	assert avg_pool.shape[1:] == (1,1,channel)
 	avg_pool = shared_layer_one(avg_pool)
@@ -36,7 +36,7 @@ def channel_attention(input_feature, ratio=16):
 	assert avg_pool.shape[1:] == (1,1,channel)
 	
     # Use max pooling layers
-	max_pool = layers.GlobalMaxPooling2D()(input_feature)
+	max_pool = layers.GlobalMaxPooling2D()(input_tensor)
 	max_pool = layers.Reshape((1,1,channel))(max_pool) # The reshaping is used for python broadcasting
 	assert max_pool.shape[1:] == (1,1,channel)
 	max_pool = shared_layer_one(max_pool)
@@ -52,15 +52,15 @@ def channel_attention(input_feature, ratio=16):
 	
 	return layers.Multiply()([input_feature,cbam_feature]) # Output of F'
 
-def spatial_attention(input_feature):
+def spatial_attention(input_tensor):
 	kernel_size = 7
 	
 	if K.image_data_format() == "channels_first":
-		channel = input_feature.shape[1]
-		cbam_feature = layers.Permute((2,3,1))(input_feature)
+		channel = input_tensor.shape[1]
+		cbam_feature = layers.Permute((2,3,1))(input_tensor)
 	else:
-		channel = input_feature.shape[-1]
-		cbam_feature = input_feature
+		channel = input_tensor.shape[-1]
+		cbam_feature = input_tensor
 	
 	avg_pool = layers.Lambda(lambda x: K.mean(x, axis=3, keepdims=True))(cbam_feature)
 	assert avg_pool.shape[-1] == 1
@@ -80,7 +80,7 @@ def spatial_attention(input_feature):
 	if K.image_data_format() == "channels_first":
 		cbam_feature = layers.Permute((3, 1, 2))(cbam_feature)
 		
-	return layers.Multiply()([input_feature,cbam_feature]) # Output of F''
+	return layers.Multiply()([input_tensor,cbam_feature]) # Output of F''
 
 
 class SelfAttention(keras.layers.Layer):
@@ -319,6 +319,7 @@ class AttentionAugmented2D(keras.layers.Layer):
         base_config = super().get_config()
         return dict(list(base_config.items()) + list(config.items()))
     
+		
 def AugmentedConv2D(  f_out,
                       kernel_size,
                       Rk = 0.25,
@@ -353,6 +354,27 @@ def AugmentedConv2D(  f_out,
     
     return layer
 
+def MultiHeadAttention2D(Rk = 1,
+						 Rv = 1,
+						 Nh = 8,
+						 relative = False,
+						 **kwargs):
+	def layer(input_tensor):
+		channel_axis = 1 if K.image_data_format() == "channels_first" else -1
+		filter = input_tensor.shape[channel_axis]
+		ei = lambda x : int(np.ceil(x/Nh)*Nh)
+        dk = ei(filter*Rk)
+        dv = ei(filter*Rv)
+		kqv = layers.Conv2D(filters = 2*dk+dv,kernel_size=1, padding='same',kernel_initializer='he_normal')(input_tensor)
+		mha = AttentionAugmented2D(dk,dv,Nh,relative)(kqv)
+		# After concatenate project mha 
+		out = layers.Conv2D(dv,kernel_size=1,padding='same',kernel_initializer='he_normal')(mha)
+		
+		return out
+	
+	return layer
+							
+		
 def slice_tensor(x, start, stop, axis):
     if axis == 3:
         return x[:, :, :, start:stop]
