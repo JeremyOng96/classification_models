@@ -355,23 +355,23 @@ def AugmentedConv2D(  f_out,
     return layer
 
 def MultiHeadAttention2D(Rk = 1,
-						 Rv = 1,
-						 Nh = 8,
-						 relative = False,
-						 **kwargs):
+		 Rv = 1,
+		 Nh = 8,
+		 relative = False,
+		 **kwargs):
 	def layer(input_tensor):
 		channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 		filter = input_tensor.shape[channel_axis]
 		ei = lambda x : int(np.ceil(x/Nh)*Nh)
-        dk = ei(filter*Rk)
-        dv = ei(filter*Rv)
+		dk = ei(filter*Rk)
+		dv = ei(filter*Rv)
 		kqv = layers.Conv2D(filters = 2*dk+dv,kernel_size=1, padding='same',kernel_initializer='he_normal')(input_tensor)
 		mha = AttentionAugmented2D(dk,dv,Nh,relative)(kqv)
 		# After concatenate project mha 
 		out = layers.Conv2D(dv,kernel_size=1,padding='same',kernel_initializer='he_normal')(mha)
-		
+
 		return out
-	
+
 	return layer
 							
 		
