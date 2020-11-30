@@ -195,14 +195,14 @@ def augmented_residual_conv_block_2(filters, stage, block, strides=(1, 1), atten
             raise ValueError('Cut type not in ["pre", "post"]')
 
         # continue with convolution layers
+        
         if str(stage+1) in "234":
-        x = layers.ZeroPadding2D(padding=(1, 1))(x)
-        x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x) # Used for downsampling
-
-        if strides != (1,1):
+            if strides != (1,1):
+                x = layers.AveragePooling2D(pool_size = (3,3), strides = 2)(x)
             x = AugmentedConv2D(filters, (3,3),stage=f"{stage+1}_a",block=f"{block+1}_a")(x)
-            
         else:
+            x = layers.ZeroPadding2D(padding=(1, 1))(x)
+            x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)  
             x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
             
         x = layers.Activation('relu', name=relu_name + '2')(x)
