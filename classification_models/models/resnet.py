@@ -198,7 +198,7 @@ def augmented_residual_conv_block_2(filters, stage, block, strides=(1, 1), atten
         
         if str(stage+1) in "234":
             if strides != (1,1):
-                x = layers.AveragePooling2D(pool_size = (3,3), strides = 2)(x)
+                x = layers.AveragePooling2D(pool_size = (3,3), strides = 2, padding='same')(x)
             x = AugmentedConv2D(filters, (3,3),stage=f"{stage+1}_a",block=f"{block+1}_a")(x)
         else:
             x = layers.ZeroPadding2D(padding=(1, 1))(x)
