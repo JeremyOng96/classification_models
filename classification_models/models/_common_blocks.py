@@ -354,11 +354,7 @@ def AugmentedConv2D(  f_out,
     
     return layer
 
-def MultiHeadAttention2D(Rk = 1,
-		 Rv = 1,
-		 Nh = 8,
-		 relative = False,
-		 **kwargs):
+def MultiHeadAttention2D(Rk = 1,Rv = 1,Nh = 8,relative = False,**kwargs):
 	def layer(input_tensor):
 		channel_axis = 1 if K.image_data_format() == "channels_first" else -1
 		filter = input_tensor.shape[channel_axis]
