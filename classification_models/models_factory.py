@@ -23,11 +23,7 @@ class ModelsFactory:
         # ResNets with Full Augmented
         'resnet18aa' : [rn.ResNet18AA, rn.preprocess_input],
         'resnet34aa' : [rn.ResNet34AA, rn.preprocess_input],
-        
-        # ResNets with MHA
-        'resnet18mha' : [rn.ResNet18MHA, rn.preprocess_input],
-        'resnet34mha' : [rn.ResNet34MHA, rn.preprocess_input],
-        
+
         # SE-Nets
         'seresnet18': [rn.SEResNet18, rn.preprocess_input],
         'seresnet34': [rn.SEResNet34, rn.preprocess_input],
