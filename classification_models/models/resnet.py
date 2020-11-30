@@ -2,7 +2,7 @@ import os
 import collections
 
 
-from ._common_blocks import ChannelSE, cbam_block, AugmentedConv2D, MultiHeadAttention2D
+from ._common_blocks import ChannelSE, cbam_block, AugmentedConv2D
 from .. import get_submodules_from_kwargs
 from ..weights import load_model_weights
 
@@ -353,8 +353,6 @@ MODELS_PARAMS = {
     'resnet34cbam':ModelParams('resnet34cbam',(3,4,6,3),residual_conv_block,cbam_block),
     'resnet18aa':ModelParams('resnet18aa', (2,2,2,2), augmented_residual_conv_block,None),
     'resnet34aa':ModelParams('resnet34aa',(3,4,6,3), augmented_residual_conv_block,None),
-    'resnet18mha':ModelParams('resnet18mha',(2,2,2,2),residual_bottleneck_block,MultiHeadAttention2D),
-    'resnet34mha':ModelParams('resnet34mha',(3,4,6,3),residual_bottleneck_block,MultiHeadAttention2D)
 }
 
 
@@ -419,29 +417,6 @@ def ResNet18AA(input_shape=None, input_tensor=None, weights=None, classes=1000, 
 def ResNet34AA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
     return ResNet(
         MODELS_PARAMS['resnet34aa'],
-        input_shape=input_shape,
-        input_tensor=input_tensor,
-        include_top=include_top,
-        classes=classes,
-        weights=weights,
-        **kwargs
-    )
-
-def ResNet18MHA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
-    return ResNet(
-        MODELS_PARAMS['resnet18mha'],
-        input_shape=input_shape,
-        input_tensor=input_tensor,
-        include_top=include_top,
-        classes=classes,
-        weights=weights,
-        **kwargs
-    )
-
-
-def ResNet34MHA(input_shape=None, input_tensor=None, weights=None, classes=1000, include_top=True, **kwargs):
-    return ResNet(
-        MODELS_PARAMS['resnet34mha'],
         input_shape=input_shape,
         input_tensor=input_tensor,
         include_top=include_top,
