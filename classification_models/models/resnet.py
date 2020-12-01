@@ -130,7 +130,8 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         conv_name, bn_name, relu_name, sc_name = handle_block_names(stage, block)
 
         x = layers.BatchNormalization(name=bn_name + '1', **bn_params)(input_tensor)
-        x = layers.Activation('relu', name=relu_name + '1')(x)
+        # x = layers.Activation('relu', name=relu_name + '1')(x)
+        x = layers.PReLU(shared_axes=[1,2], name=relu_name + '1')(x)
 
         # defining shortcut connection
         if cut == 'pre':
@@ -144,7 +145,8 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         x = layers.ZeroPadding2D(padding=(1, 1))(x)
         x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
-        x = layers.Activation('relu', name=relu_name + '2')(x)
+        # x = layers.Activation('relu', name=relu_name + '2')(x)
+        x = layers.PReLU(shared_axes=[1,2], name=relu_name + '2')(x)
         
         if str(stage+1) in "234":
             x = AugmentedConv2D(filters, (3,3), stage=stage+1,block=block+1)(x)
