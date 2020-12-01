@@ -351,7 +351,7 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
     x = layers.Conv2D(init_filters, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
     x = layers.BatchNormalization(name='bn0', **bn_params)(x)
     # x = layers.Activation('relu', name='relu0')(x)
-    x = layers.PReLU(shared_axes=[1,2], name='relu0'')(x)
+    x = layers.PReLU(shared_axes=[1,2], name='relu0')(x)
     x = layers.ZeroPadding2D(padding=(1, 1))(x)
     x = layers.MaxPooling2D((3, 3), strides=(2, 2), padding='valid', name='pooling0')(x)
 
@@ -375,7 +375,8 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
                                   cut='pre', attention=Attention)(x)
 
     x = layers.BatchNormalization(name='bn1', **bn_params)(x)
-    x = layers.Activation('relu', name='relu1')(x)
+    # x = layers.Activation('relu', name='relu1')(x)
+    x = layers.PReLU(shared_axes=[1,2], name='relu1')(x)
 
     # resnet top
     if include_top:
