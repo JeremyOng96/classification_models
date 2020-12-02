@@ -145,8 +145,8 @@ def augmented_residual_conv_block(filters, stage, block, strides=(1, 1), attenti
         x = layers.ZeroPadding2D(padding=(1, 1))(x)
         x = layers.Conv2D(filters, (3, 3), strides=strides, name=conv_name + '1', **conv_params)(x)
         x = layers.BatchNormalization(name=bn_name + '2', **bn_params)(x)
-        # x = layers.Activation('relu', name=relu_name + '2')(x)
-        x = layers.PReLU(shared_axes=[1,2], name=relu_name + '2')(x)
+        x = layers.Activation('relu', name=relu_name + '2')(x)
+        # x = layers.PReLU(shared_axes=[1,2], name=relu_name + '2')(x)
         
         if str(stage+1) in "234":
             x = AugmentedConv2D(filters, (3,3), stage=stage+1,block=block+1)(x)
@@ -350,8 +350,8 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
     x = layers.ZeroPadding2D(padding=(3, 3))(x)
     x = layers.Conv2D(init_filters, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
     x = layers.BatchNormalization(name='bn0', **bn_params)(x)
-    # x = layers.Activation('relu', name='relu0')(x)
-    x = layers.PReLU(shared_axes=[1,2], name='relu0')(x)
+    x = layers.Activation('relu', name='relu0')(x)
+    # x = layers.PReLU(shared_axes=[1,2], name='relu0')(x)
     x = layers.ZeroPadding2D(padding=(1, 1))(x)
     x = layers.MaxPooling2D((3, 3), strides=(2, 2), padding='valid', name='pooling0')(x)
 
@@ -375,8 +375,8 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
                                   cut='pre', attention=Attention)(x)
 
     x = layers.BatchNormalization(name='bn1', **bn_params)(x)
-    # x = layers.Activation('relu', name='relu1')(x)
-    x = layers.PReLU(shared_axes=[1,2], name='relu1')(x)
+    x = layers.Activation('relu', name='relu1')(x)
+    # x = layers.PReLU(shared_axes=[1,2], name='relu1')(x)
 
     # resnet top
     if include_top:
