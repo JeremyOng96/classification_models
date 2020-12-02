@@ -50,7 +50,7 @@ def channel_attention(input_tensor, ratio=16):
 	if K.image_data_format() == "channels_first":
 		cbam_feature = layers.Permute((3, 1, 2))(cbam_feature)
 	
-	return layers.Multiply()([input_feature,cbam_feature]) # Output of F'
+	return layers.Multiply()([input_tensor,cbam_feature]) # Output of F'
 
 def spatial_attention(input_tensor):
 	kernel_size = 7
