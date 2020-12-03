@@ -2,7 +2,7 @@ from classification_models import get_submodules_from_kwargs
 import tensorflow as tf
 import numpy as np
 from tensorflow import keras
-from keras import layers
+from tensorflow.keras import layers
 import tensorflow.keras.backend as K
 from tensorflow.keras import initializers
 
