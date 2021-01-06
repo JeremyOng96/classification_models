@@ -85,7 +85,8 @@ def residual_conv_block(filters, stage, block, strides=(1, 1), attention=None, c
         if cut == 'pre':
             shortcut = input_tensor
         elif cut == 'post':
-            shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(x)
+            shortcut = layers.AveragePooling2D(pool_size=(2,2),strides=(2,2),padding='same')(x)
+            shortcut = layers.Conv2D(filters, (1, 1), name=sc_name, strides=strides, **conv_params)(shortcut)
         else:
             raise ValueError('Cut type not in ["pre", "post"]')
 
@@ -347,11 +348,24 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
 
     # resnet bottom
     x = layers.BatchNormalization(name='bn_data', **no_scale_bn_params)(img_input)
-    x = layers.ZeroPadding2D(padding=(3, 3))(x)
-    x = layers.Conv2D(init_filters, (7, 7), strides=(1, 1), name='conv0', **conv_params)(x)
-    x = layers.BatchNormalization(name='bn0', **bn_params)(x)
-    x = layers.Activation('relu', name='relu0')(x)
-    # x = layers.PReLU(shared_axes=[1,2], name='relu0')(x)
+    # deep stem part a
+    x = layers.ZeroPadding2D(padding=(1, 1))(x)
+    x = layers.Conv2D(init_filters // 2, (3,3), strides = (1,1), name="conv0_a", **conv_params)(x)
+    x = layers.BatchNormalization(name="bn0_a",**bn_params)(x)
+    x = layers.Activation('relu',name='relu0_a')(x)
+    
+    # deep stem part b
+    x = layers.ZeroPadding2D(padding=(1, 1))(x)
+    x = layers.Conv2D(init_filters // 2, (3,3), strides = (1,1), name="conv0_b", **conv_params)(x)
+    x = layers.BatchNormalization(name="bn0_b",**bn_params)(x)
+    x = layers.Activation('relu',name='relu0_b')(x)
+    
+    # deep stem part final
+    x = layers.ZeroPadding2D(padding=(1, 1))(x)
+    x = layers.Conv2D(init_filters, (3,3), strides = (1,1), name="conv0_c", **conv_params)(x)
+    x = layers.BatchNormalization(name="bn0",**bn_params)(x)
+    x = layers.Activation('relu',name='relu0')(x)
+
     x = layers.ZeroPadding2D(padding=(1, 1))(x)
     x = layers.MaxPooling2D((3, 3), strides=(2, 2), padding='valid', name='pooling0')(x)
 
@@ -376,7 +390,6 @@ def ResNet(model_params, input_shape=None, input_tensor=None, include_top=True,
 
     x = layers.BatchNormalization(name='bn1', **bn_params)(x)
     x = layers.Activation('relu', name='relu1')(x)
-    # x = layers.PReLU(shared_axes=[1,2], name='relu1')(x)
 
     # resnet top
     if include_top:
