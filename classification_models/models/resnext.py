@@ -191,7 +191,7 @@ def ResNeXt(
     # resnext bottom
     x = layers.BatchNormalization(name='bn_data', **no_scale_bn_params)(img_input)
     x = layers.ZeroPadding2D(padding=(3, 3))(x)
-    x = layers.Conv2D(64, (7, 7), strides=(1, 1), name='conv0', **conv_params)(x)
+    x = layers.Conv2D(64, (7, 7), strides=(2, 2), name='conv0', **conv_params)(x)
     x = layers.BatchNormalization(name='bn0', **bn_params)(x)
     x = layers.Activation('relu', name='relu0')(x)
     x = layers.ZeroPadding2D(padding=(1, 1))(x)
